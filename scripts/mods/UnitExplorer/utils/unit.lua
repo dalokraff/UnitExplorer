@@ -28,8 +28,10 @@ function mod.drag_unit(unit_explorer)
     local world = Managers.world:world("level_world")
     world:destroy_unit(unit)
 
-    mod.dragged_unit = World.spawn_unit(world, unit_hash, spawn_position,
-                                        unit_rotation)
+    local rotation = mod.dragged_rotation:unbox()
+
+    mod.dragged_unit = World.spawn_unit(world, unit_hash, spawn_position, rotation)
+    mod.dragged_rotation = QuaternionBox(rotation)
 
     mod.outline_unit(mod.dragged_unit)
 

@@ -65,6 +65,7 @@ function mod.handle_inputs()
                                             do_outline, apply_method)
                 mod.outlined_unit = closest_unit_hit
                 mod.dragged_unit = mod.outlined_unit
+                mod.dragged_rotation = QuaternionBox(Unit.local_rotation(mod.dragged_unit, 0))
             end
         end
     end
@@ -76,7 +77,7 @@ function mod.handle_inputs()
     if Keyboard.pressed(Keyboard.button_index("home")) then
         mod.dragging = not mod.dragging
 
-        if mod.dragging then 
+        if mod.dragging then
             local player_manager = Managers.player
             local local_player = player_manager:local_player()
             local viewport_name = local_player.viewport_name
@@ -84,7 +85,7 @@ function mod.handle_inputs()
                                         viewport_name)
             local unit_position = Unit.local_position(mod.dragged_unit, 0)
             mod.dragged_unit_distance = Vector3.distance(camera_position,
-                                                     unit_position)
+                                                         unit_position)
         end
     end
 
@@ -92,5 +93,8 @@ function mod.handle_inputs()
         local scroll = Vector3.y(Mouse.axis(Mouse.axis_id("wheel")))
         mod.dragged_unit_distance = mod.dragged_unit_distance + scroll
     end
+
+    if Keyboard.pressed(Keyboard.button_index("r")) then mod.rotating = true end
+    if Keyboard.released(Keyboard.button_index("r")) then mod.rotating = false end
 
 end
