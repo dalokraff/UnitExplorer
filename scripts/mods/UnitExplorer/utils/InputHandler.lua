@@ -64,8 +64,7 @@ function mod.handle_inputs()
                 outline_system:outline_unit(closest_unit_hit, flag, channel,
                                             do_outline, apply_method)
                 mod.outlined_unit = closest_unit_hit
-                mod.dragged_unit = mod.outlined_unit
-                mod.dragged_rotation = QuaternionBox(Unit.local_rotation(mod.dragged_unit, 0))
+                mod.dragged_rotation = QuaternionBox(Unit.local_rotation(mod.outlined_unit, 0))
             end
         end
     end
@@ -83,7 +82,7 @@ function mod.handle_inputs()
             local viewport_name = local_player.viewport_name
             local camera_position = Managers.state.camera:camera_position(
                                         viewport_name)
-            local unit_position = Unit.local_position(mod.dragged_unit, 0)
+            local unit_position = Unit.local_position(mod.outlined_unit, 0)
             mod.dragged_unit_distance = Vector3.distance(camera_position,
                                                          unit_position)
         end

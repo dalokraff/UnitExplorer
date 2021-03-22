@@ -16,27 +16,24 @@ function mod.drag_unit(unit_explorer)
     local camera_rotation = Managers.state.camera:camera_rotation(viewport_name)
     local camera_direction = Quaternion.forward(camera_rotation)
 
-    local unit = mod.dragged_unit
-    -- mod:echo(unit)
-    local unit_position = Unit.local_position(unit, 0)
-    local unit_rotation = Unit.local_rotation(unit, 0)
-    local unit_hash = Unit.name_hash(unit)
-    local spawn_position =
+    local unit = mod.outlined_unit
+    local new_position =
         camera_position + Vector3.normalize(camera_direction) *
             mod.dragged_unit_distance
 
-    local world = Managers.world:world("level_world")
-    world:destroy_unit(unit)
 
     local rotation = mod.dragged_rotation:unbox()
 
-    mod.dragged_unit = World.spawn_unit(world, unit_hash, spawn_position, rotation)
+    Unit.set_local_position(unit, 0, new_position)
+    Unit.set_local_rotation(unit, 0, rotation)
+
+    -- Force the physics to update
+    Unit.disable_physics(unit)
+    Unit.enable_physics(unit)
+
+    -- Prevent stale data
     mod.dragged_rotation = QuaternionBox(rotation)
-
-    mod.outline_unit(mod.dragged_unit)
-
-    mod.unit_explorer._unit = mod.dragged_unit
-end
+end 
 
 function mod.outline_unit(unit)
     local flag = "outline_unit"
