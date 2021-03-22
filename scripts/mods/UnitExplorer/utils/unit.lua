@@ -1,4 +1,5 @@
--- luacheck: globals Unit get_mod
+-- luacheck: globals Unit get_mod Vector3Box QuaternionBox Managers
+-- luacheck: globals Vector3 Quaternion Color
 local mod = get_mod("UnitExplorer")
 
 function mod.unit_hash(unit)
@@ -6,6 +7,25 @@ function mod.unit_hash(unit)
     debug_name = string.gsub(debug_name, "#ID%[", "")
     debug_name = string.gsub(debug_name, "%]", "")
     return debug_name
+end
+
+function mod.extract_unit_data(unit)
+    local data = {}
+    data.unit = unit
+    data.id = tostring(Unit.id(unit))
+    data.hash = mod.unit_hash(unit)
+    data.position = Vector3Box(Unit.world_position(unit, 0))
+    data.rotation = QuaternionBox(Unit.world_rotation(unit, 0))
+
+    data.extensions = {}
+    local j = 0
+    while Unit.has_data(unit, "extensions", j) do
+        local class_name = Unit.get_data(unit, "extensions", j)
+        j = j + 1
+        data.extensions[j] = class_name
+    end
+
+    return data
 end
 
 function mod.drag_unit(unit_explorer)
@@ -18,8 +38,8 @@ function mod.drag_unit(unit_explorer)
 
     local unit = mod.outlined_unit
     local new_position =
-        camera_position + Vector3.normalize(camera_direction) *
-            mod.dragged_unit_distance
+    camera_position + Vector3.normalize(camera_direction) *
+    mod.dragged_unit_distance
 
 
     local rotation = mod.dragged_rotation:unbox()
@@ -33,7 +53,7 @@ function mod.drag_unit(unit_explorer)
 
     -- Prevent stale data
     mod.dragged_rotation = QuaternionBox(rotation)
-end 
+end
 
 function mod.outline_unit(unit)
     local flag = "outline_unit"
