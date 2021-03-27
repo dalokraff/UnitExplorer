@@ -1,5 +1,5 @@
 -- luacheck: globals LevelExplorerUi Imgui Managers LevelHelper Level ShowCursorStack class
--- luacheck: globals Keyboard Unit get_mod Vector3Box QuaternionBox
+-- luacheck: globals Keyboard Unit get_mod Vector3Box QuaternionBox World
 local mod = get_mod("UnitExplorer")
 
 LevelExplorerUi = class(LevelExplorerUi)
@@ -18,11 +18,11 @@ end
 
 function LevelExplorerUi.open(self)
     local world = Managers.world:world("level_world")
-    local level = LevelHelper:current_level(world)
-    self._raw_units = Level.units(level)
+    self._raw_units = World.units(world)
     self._units = {}
 
     for i, unit in ipairs(self._raw_units) do
+        -- Unit.set_unit_visibility(unit, true)
         local data = mod.extract_unit_data(unit)
         self._units[i] = data
     end
@@ -47,9 +47,16 @@ function LevelExplorerUi.draw(self)
         Imgui.tree_push(unit.id)
 
         if Imgui.tree_node(unit.id, #unit.extensions > 0) then
+            if unit.name ~= "" then
+                Imgui.text("Name: " .. unit.name)
+            end
             Imgui.text("Hash: " .. unit.hash)
             Imgui.text("Pos: " .. tostring(unit.position:unbox()))
             Imgui.text("Rot: " .. tostring(unit.rotation:unbox()))
+
+            if unit.from_game_mode then
+                Imgui.text("Respawn for: " .. (unit.from_game_mode or "default"))
+            end
 
             if Imgui.tree_node("Extensions", #unit.extensions > 0) then
                 for _, extension in ipairs(unit.extensions) do

@@ -11,18 +11,25 @@ end
 
 function mod.extract_unit_data(unit)
     local data = {}
-    data.unit = unit
-    data.id = tostring(Unit.id(unit))
-    data.hash = mod.unit_hash(unit)
-    data.position = Vector3Box(Unit.world_position(unit, 0))
-    data.rotation = QuaternionBox(Unit.world_rotation(unit, 0))
+    if Unit.alive(unit) then
+        data.unit = unit
+        data.name = (Unit.get_data(unit, "unit_name") or "")
+        data.id = tostring(Unit.id(unit))
+        data.hash = mod.unit_hash(unit)
+        if Unit.num_scene_graph_items(unit) > 0 then
+            data.position = Vector3Box(Unit.world_position(unit, 0))
+            data.rotation = QuaternionBox(Unit.world_rotation(unit, 0))
+        end
 
-    data.extensions = {}
-    local j = 0
-    while Unit.has_data(unit, "extensions", j) do
-        local class_name = Unit.get_data(unit, "extensions", j)
-        j = j + 1
-        data.extensions[j] = class_name
+        data.extensions = {}
+        local j = 0
+        while Unit.has_data(unit, "extensions", j) do
+            local class_name = Unit.get_data(unit, "extensions", j)
+            j = j + 1
+            data.extensions[j] = class_name
+        end
+
+        data.from_game_mode = Unit.get_data(unit, "from_game_mode")
     end
 
     return data
