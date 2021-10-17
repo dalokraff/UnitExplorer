@@ -66,3 +66,64 @@ mod:hook(CharacterStateHelper, "get_look_input", function(func, input_extension,
         return look_delta
     end
 end)
+
+mod:command("spawn_lvls", "Spawn in saved units", function() 
+	local ctr = 0
+	for _ in io.lines'level.txt' do
+	  ctr = ctr + 1
+	end
+	local unit_cnt = ctr/9
+	mod:echo(unit_cnt)
+	
+	local world = Managers.world:world("level_world")
+	local unit_table = {}
+	local pos = Vector3.zero()
+	
+	local level_file = io.open("level.txt", "r")
+	
+	for i=0,unit_cnt,1 do
+		unit_table.unit_hash = level_file:read()
+		
+		local swap_newln = string.gsub(unit_table.unit_hash, "spess", "\n")
+		local swap_bigSpess = string.gsub(swap_newln, "bigSpess", "	")
+		local swap_Opara = string.gsub(swap_bigSpess, "openPara", "%(")
+		local swap_Cpara = string.gsub(swap_Opara, "closePara", "%)")
+		local swap_period = string.gsub(swap_Cpara, "period", "%.")
+		local swap_percent = string.gsub(swap_period, "percent", "%%")
+		local swap_plus = string.gsub(swap_percent, "plus", "%+")
+		local swap_minus = string.gsub(swap_plus, "minus", "%-")
+		local swap_star = string.gsub(swap_minus, "star", "%*")
+		local swap_quest = string.gsub(swap_star, "quest", "%?")
+		local swap_Obrack = string.gsub(swap_quest, "openBracket", "%[")
+		local swap_carrot = string.gsub(swap_Obrack, "carrot", "%^")
+		local swap_money = string.gsub(swap_carrot, "money", "%$")
+		
+		unit_table.unit_hash = swap_money
+		
+		unit_table.pos_x = level_file:read()
+		unit_table.pos_y = level_file:read()
+		unit_table.pos_z = level_file:read()
+		Vector3.set_xyz(pos, unit_table.pos_x, unit_table.pos_y, unit_table.pos_z)
+		
+		unit_table.rot_x = level_file:read()
+		unit_table.rot_y = level_file:read()
+		unit_table.rot_z = level_file:read()
+		unit_table.rot_w = level_file:read()
+		
+		--mod:echo(pos)
+		local quat = Quaternion.from_elements(unit_table.rot_x, unit_table.rot_y, unit_table.rot_z, unit_table.rot_w)
+		--local quat = Quaternion.from_elements(0, 0, -0.41, -0.90)
+		--mod:echo(quat)
+		--mod:echo(Quaternion.normalize(quat))
+		World.spawn_unit(world, unit_table.unit_hash, pos, Quaternion.normalize(quat))
+		--mod:echo(Quaternion.normalize(quat))
+		level_file:read()
+	end
+	level_file:close()	
+end)
+
+mod:command("clear_file", "deletes all saved untis from file", function()
+	local level_file = io.open("level.txt", "w")
+	level_file:write("")
+	level_file:close()
+end)

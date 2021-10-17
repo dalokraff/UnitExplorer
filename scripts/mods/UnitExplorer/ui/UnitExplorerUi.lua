@@ -50,6 +50,49 @@ local function spawn_package_at_look (unit)
 
     if world and player and player.player_unit and closest_hit_location then
         local rotation = Unit.local_rotation(player_unit, 0)
+		
+		local level_file = io.open("level.txt","a")
+		local stor_rot = QuaternionBox(rotation)
+		if true then
+			--replaces special pattern matching characters with less common patterns
+			--probably should move this proccess to it's own funciton
+			--level_file:write(tostring(Unit.name_hash(unit)))
+			local swap_newln = string.gsub(tostring(Unit.name_hash(unit)), "\n", "spess")
+			local swap_bigSpess = string.gsub(swap_newln, "	", "bigSpess")
+			local swap_Opara = string.gsub(swap_bigSpess, "%(", "openPara")
+			local swap_Cpara = string.gsub(swap_Opara, "%)", "closePara")
+			local swap_period = string.gsub(swap_Cpara, "%.", "period")
+			local swap_percent = string.gsub(swap_period, "%%", "percent")
+			local swap_plus = string.gsub(swap_percent, "%+", "plus")
+			local swap_minus = string.gsub(swap_plus, "%-", "minus")
+			local swap_star = string.gsub(swap_minus, "%*", "star")
+			local swap_quest = string.gsub(swap_star, "%?", "quest")
+			local swap_Obrack = string.gsub(swap_quest, "%[", "openBracket")
+			local swap_carrot = string.gsub(swap_Obrack, "%^", "carrot")
+			local swap_money = string.gsub(swap_carrot, "%$", "money")
+			level_file:write(swap_money)
+			
+			--mod:echo(tostring(Unit.name_hash(unit)))
+			level_file:write("\n")
+			level_file:write(tostring(closest_hit_location.x).."\n")
+			level_file:write(tostring(closest_hit_location.y).."\n")
+			level_file:write(tostring(closest_hit_location.z).."\n")
+			local x,y,z,w = Quaternion.to_elements(Quaternion.normalize(QuaternionBox.unbox(stor_rot)))
+			local rot_tab = {tostring(x),tostring(y),tostring(z),tostring(w)}
+			--only considers the first 3 decimal places to reduce the error from rounding when normalizing the rotation vector 
+			for k,v in pairs(rot_tab) do
+				local i,j = string.find(v, '%.')
+				if i ~= nil then
+					v = v:sub(0, i+3)
+				end
+				level_file:write(v.."\n")
+			end
+			--level_file:write(tostring(x):sub(0, 5).."\n"..tostring(y):sub(0, 5).."\n"..tostring(z):sub(0, 5).."\n"..tostring(w):sub(0, 5))
+			--level_file:write("\n")
+			level_file:write("\n")
+		end
+		level_file:close()
+		
         return World.spawn_unit(world, Unit.name_hash(unit), closest_hit_location, rotation)
     end
 
@@ -59,7 +102,57 @@ end
 local function destroy_unit(unit)
     mod:echo("Destroying a '%s'", mod.unit_hash(unit))
     local world = Managers.world:world("level_world")
-    world:destroy_unit(unit)
+	
+	--copy added level data to a string for parsing
+	local level_file = io.open("level.txt","r")
+	local temp_file = level_file:read("*all")
+	level_file:close()
+	
+	--replaces special pattern matching characters with less common patterns
+	--probably should move this proccess to it's own funciton
+	local unit_name = tostring(Unit.name_hash(unit))
+	local swap_bigSpess = string.gsub(unit_name, "	", "bigSpess")
+	local swap_newln = string.gsub(swap_bigSpess, "\n", "spess")
+	local swap_Opara = string.gsub(swap_newln, "%(", "openPara")
+	local swap_Cpara = string.gsub(swap_Opara, "%)", "closePara")
+	local swap_period = string.gsub(swap_Cpara, "%.", "period")
+	local swap_percent = string.gsub(swap_period, "%%", "percent")
+	local swap_plus = string.gsub(swap_percent, "%+", "plus")
+	local swap_minus = string.gsub(swap_plus, "%-", "minus")
+	local swap_star = string.gsub(swap_minus, "%*", "star")
+	local swap_quest = string.gsub(swap_star, "%?", "quest")
+	local swap_Obrack = string.gsub(swap_quest, "%[", "openBracket")
+	local swap_carrot = string.gsub(swap_Obrack, "%^", "carrot")
+	local swap_money = string.gsub(swap_carrot, "%$", "money")
+	local unit_name_str = swap_money
+	
+	local x1,y1,z1 = Vector3.to_elements(Unit.local_position(unit,0))
+	local pos_str = tostring(x1).."\n"..tostring(y1).."\n"..tostring(z1).."\n"
+	local norm_quat = Quaternion.normalize(Unit.local_rotation(unit,0))
+	local x2,y2,z2,w2 = Quaternion.to_elements(norm_quat)
+	local rot_tab ={tostring(x2),tostring(y2),tostring(z2),tostring(w2)}
+	local rot_str = ""
+	--only considers the first 3 decimal places to reduce the error from rounding when normalizing the rotation vector
+	for k,v in pairs(rot_tab) do
+		local i,j = string.find(v, '%.')
+		if i ~= nil then
+			v = v:sub(0, i+3)
+		end
+		rot_str = rot_str..v.."\n"
+	end
+	
+	local search_string = unit_name_str.."\n"..pos_str..rot_str.."\n"
+	--commented out section is for trying out a pattern matching way to remove the rotation vector's elements from file
+	--local search_string = unit_name_str.."\n"..pos_str.."([%-%d]+%.?%d-\n)".."([%-%d]+%.?%d-\n)".."([%-%d]+%.?%d-\n)".."([%-%d]+%.?%d-\n)"
+	--mod:echo(search_string)
+	search_string = string.gsub(search_string, "%-", "%%%-")
+	mod:echo(search_string)
+	temp_file,_ = string.gsub(temp_file, search_string, "")
+	local new_level = io.open("level.txt", "w")
+	new_level:write(temp_file)
+	new_level:close()
+	
+	world:destroy_unit(unit)
 end
 
 UnitExplorerUi = class(UnitExplorerUi)
