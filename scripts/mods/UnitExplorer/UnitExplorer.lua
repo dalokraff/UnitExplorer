@@ -69,8 +69,10 @@ mod:hook(CharacterStateHelper, "get_look_input", function(func, input_extension,
 end)
 
 mod:command("spawn_lvls", "Spawn in saved units", function() 
+	
+	local file_name = tostring(Managers.state.game_mode:level_key())..".txt"
 	local ctr = 0
-	for _ in io.lines'level.txt' do
+	for _ in io.lines(file_name) do
 	  ctr = ctr + 1
 	end
 	--9 is the number of lines used to store all the unit data
@@ -80,7 +82,7 @@ mod:command("spawn_lvls", "Spawn in saved units", function()
 	local unit_table = {}
 	local pos = Vector3.zero()
 	
-	local level_file = io.open("level.txt", "r")
+	local level_file = io.open(file_name, "r")
 	
 	for i=0,unit_cnt,1 do
 		unit_table.unit_hash = level_file:read()
@@ -105,7 +107,8 @@ mod:command("spawn_lvls", "Spawn in saved units", function()
 end)
 
 mod:command("clear_file", "deletes all saved untis from file", function()
-	local level_file = io.open("level.txt", "w")
+	local file_name = tostring(Managers.state.game_mode:level_key())..".txt"
+	local level_file = io.open(file_name, "w")
 	level_file:write("")
 	level_file:close()
 end)

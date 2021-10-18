@@ -20,8 +20,8 @@ end
 local function spawn_package_at_look (unit)
     mod:echo("Creating a '%s'", mod.unit_hash(unit))
     local player = Managers.player:local_player()
-
-    local world = Managers.world:world("level_world")
+	
+	local world = Managers.world:world("level_world")	
     local physics_world = World.get_data(world, "physics_world")
 
     local player_unit = Managers.player:local_player().player_unit
@@ -51,7 +51,8 @@ local function spawn_package_at_look (unit)
     if world and player and player.player_unit and closest_hit_location then
         local rotation = Unit.local_rotation(player_unit, 0)
 		
-		local level_file = io.open("level.txt","a")
+		local file_name = tostring(Managers.state.game_mode:level_key())..".txt"
+		local level_file = io.open(file_name,"a")
 		local stor_rot = QuaternionBox(rotation)
 		if true then
 			local unit_name_str = mod.str_replacer(tostring(Unit.name_hash(unit)), true)
@@ -81,7 +82,8 @@ local function destroy_unit(unit)
     local world = Managers.world:world("level_world")
 	
 	--copy added level data to a string for parsing
-	local level_file = io.open("level.txt","r")
+	local file_name = tostring(Managers.state.game_mode:level_key())..".txt"
+	local level_file = io.open(file_name,"r")
 	local temp_file = level_file:read("*all")
 	level_file:close()
 	
@@ -98,7 +100,7 @@ local function destroy_unit(unit)
 	local search_string = unit_name_str.."\n"..pos_str..rot_str.."\n"
 	search_string = string.gsub(search_string, "%-", "%%%-")
 	temp_file,_ = string.gsub(temp_file, search_string, "")
-	local new_level = io.open("level.txt", "w")
+	local new_level = io.open(file_name, "w")
 	new_level:write(temp_file)
 	new_level:close()
 	
