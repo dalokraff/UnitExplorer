@@ -1,7 +1,10 @@
 local mod = get_mod("UnitExplorer")
 
+strManip = {}
+strManip.__index = strManip
+
 --replaces special pattern matching characters with less common patterns
-function mod.str_replacer(someString, revBool)
+function strManip:replacer(someString, revBool)
 	
 	local replacement_table = {
 		bigSpess = "	",
@@ -33,7 +36,7 @@ function mod.str_replacer(someString, revBool)
 end
 
 --only considers the first 3 decimal places to reduce the error from rounding when normalizing the rotation vector
-function mod.strTbl_ceil(tableFloatString)
+function strManip:ceil(tableFloatString)
 	floatString = ""
 	for k,v in pairs(tableFloatString) do
 		local i,j = string.find(v, '%.')

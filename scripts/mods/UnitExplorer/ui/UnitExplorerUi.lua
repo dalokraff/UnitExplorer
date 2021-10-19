@@ -1,4 +1,5 @@
 -- luacheck: globals UnitExplorerUi Imgui Managers LevelHelper Level ShowCursorStack class Keyboard Unit get_mod World
+require 'scripts/mods/UnitExplorer/utils/level_IO'
 local mod = get_mod("UnitExplorer")
 
 local function spawn_package_to_player (unit)
@@ -22,6 +23,7 @@ local function spawn_package_at_look (unit)
     local player = Managers.player:local_player()
 	
 	local world = Managers.world:world("level_world")	
+	
     local physics_world = World.get_data(world, "physics_world")
 
     local player_unit = Managers.player:local_player().player_unit
@@ -51,26 +53,9 @@ local function spawn_package_at_look (unit)
     if world and player and player.player_unit and closest_hit_location then
         local rotation = Unit.local_rotation(player_unit, 0)
 		
-		local file_name = tostring(Managers.state.game_mode:level_key())..".txt"
-		local level_file = io.open(file_name,"a")
 		local stor_rot = QuaternionBox(rotation)
-		if true then
-			local unit_name_str = mod.str_replacer(tostring(Unit.name_hash(unit)), true)
-			level_file:write(unit_name_str)
-			level_file:write("\n")
-			
-			level_file:write(tostring(closest_hit_location.x).."\n")
-			level_file:write(tostring(closest_hit_location.y).."\n")
-			level_file:write(tostring(closest_hit_location.z).."\n")
-			
-			local x,y,z,w = Quaternion.to_elements(Quaternion.normalize(QuaternionBox.unbox(stor_rot)))
-			local rot_tab = {tostring(x),tostring(y),tostring(z),tostring(w)}
-			local rot_str = mod.strTbl_ceil(rot_tab)
-			level_file:write(rot_str)
-			level_file:write("\n")
-		end
-		level_file:close()
-		
+		local didSave = levelIO:save(unit, stor_rot, closest_hit_location)
+	
         return World.spawn_unit(world, Unit.name_hash(unit), closest_hit_location, rotation)
     end
 
@@ -80,30 +65,7 @@ end
 local function destroy_unit(unit)
     mod:echo("Destroying a '%s'", mod.unit_hash(unit))
     local world = Managers.world:world("level_world")
-	
-	--copy added level data to a string for parsing
-	local file_name = tostring(Managers.state.game_mode:level_key())..".txt"
-	local level_file = io.open(file_name,"r")
-	local temp_file = level_file:read("*all")
-	level_file:close()
-	
-	local unit_name = tostring(Unit.name_hash(unit))
-	local unit_name_str = mod.str_replacer(unit_name, true)
-	
-	local x1,y1,z1 = Vector3.to_elements(Unit.local_position(unit,0))
-	local pos_str = tostring(x1).."\n"..tostring(y1).."\n"..tostring(z1).."\n"
-	local norm_quat = Quaternion.normalize(Unit.local_rotation(unit,0))
-	local x2,y2,z2,w2 = Quaternion.to_elements(norm_quat)
-	local rot_tab ={tostring(x2),tostring(y2),tostring(z2),tostring(w2)}
-	local rot_str = mod.strTbl_ceil(rot_tab)
-	
-	local search_string = unit_name_str.."\n"..pos_str..rot_str.."\n"
-	search_string = string.gsub(search_string, "%-", "%%%-")
-	temp_file,_ = string.gsub(temp_file, search_string, "")
-	local new_level = io.open(file_name, "w")
-	new_level:write(temp_file)
-	new_level:close()
-	
+	local wasUnitRemoved = levelIO:remove(unit)
 	world:destroy_unit(unit)
 end
 
