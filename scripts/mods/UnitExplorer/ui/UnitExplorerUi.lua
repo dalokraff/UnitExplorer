@@ -1,5 +1,6 @@
 -- luacheck: globals UnitExplorerUi Imgui Managers LevelHelper Level ShowCursorStack class Keyboard Unit get_mod World
 require 'scripts/mods/UnitExplorer/utils/level_IO'
+require 'scripts/mods/UnitExplorer/utils/navMesh'
 local mod = get_mod("UnitExplorer")
 
 local function spawn_package_to_player (unit)
@@ -18,12 +19,11 @@ local function spawn_package_to_player (unit)
     return nil
 end
 
-local function spawn_package_at_look (unit)
-    mod:echo("Creating a '%s'", mod.unit_hash(unit))
+local function spawn_package_at_look (unit_toSpawn)
+    mod:echo("Creating a '%s'", mod.unit_hash(unit_toSpawn))
     local player = Managers.player:local_player()
 	
 	local world = Managers.world:world("level_world")	
-	
     local physics_world = World.get_data(world, "physics_world")
 
     local player_unit = Managers.player:local_player().player_unit
@@ -54,9 +54,11 @@ local function spawn_package_at_look (unit)
         local rotation = Unit.local_rotation(player_unit, 0)
 		
 		local stor_rot = QuaternionBox(rotation)
-		local didSave = levelIO:save(unit, stor_rot, closest_hit_location)
+		local didSave = levelIO:save(unit_toSpawn, stor_rot, closest_hit_location)
+		--Navmesh generation currently crashes
+		--local didGenNav = navMeshGen:gen(world, unit)		
 	
-        return World.spawn_unit(world, Unit.name_hash(unit), closest_hit_location, rotation)
+        return World.spawn_unit(world, unit_toSpawn, closest_hit_location, rotation)
     end
 
     return nil
