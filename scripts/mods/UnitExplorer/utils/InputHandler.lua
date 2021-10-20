@@ -1,4 +1,5 @@
 -- luacheck: globals Unit get_mod
+require 'scripts/mods/UnitExplorer/utils/level_IO'
 local mod = get_mod("UnitExplorer")
 
 function mod.handle_inputs()
@@ -75,7 +76,6 @@ function mod.handle_inputs()
 
     if Keyboard.pressed(Keyboard.button_index("home")) then
         mod.dragging = not mod.dragging
-
         if mod.dragging then
             local player_manager = Managers.player
             local local_player = player_manager:local_player()
@@ -86,6 +86,8 @@ function mod.handle_inputs()
             mod.dragged_unit_distance = Vector3.distance(camera_position,
                                                          unit_position)
         end
+		
+		local didSave = levelIO:save(mod.outlined_unit, QuaternionBox(Unit.local_rotation(mod.outlined_unit, 0)), Unit.local_position(mod.outlined_unit, 0))
     end
 
     if mod.dragging then

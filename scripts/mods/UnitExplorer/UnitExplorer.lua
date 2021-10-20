@@ -71,8 +71,10 @@ end)
 
 mod:command("spawn_lvls", "Spawn in saved units", function() 
 	levelIO:load()
+	mod:echo('loaded')
 end)
 
 mod:command("clear_file", "deletes all saved untis from file", function()
 	levelIO:clear()
+	mod:echo('cleared')
 end)

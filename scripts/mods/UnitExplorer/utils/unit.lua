@@ -1,5 +1,6 @@
 -- luacheck: globals Unit get_mod Vector3Box QuaternionBox Managers
 -- luacheck: globals Vector3 Quaternion Color
+require 'scripts/mods/UnitExplorer/utils/level_IO'
 local mod = get_mod("UnitExplorer")
 
 function mod.unit_hash(unit)
@@ -50,7 +51,9 @@ function mod.drag_unit(unit_explorer)
     local new_position =
     camera_position + Vector3.normalize(camera_direction) *
     mod.dragged_unit_distance
-
+	
+	--removes unit if in file
+	local wasUnitRemoved = levelIO:remove(unit)
 
     local rotation = mod.dragged_rotation:unbox()
 
