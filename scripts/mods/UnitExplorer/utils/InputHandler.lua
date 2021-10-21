@@ -88,6 +88,9 @@ function mod.handle_inputs()
         end
 		
 		local didSave = levelIO:save(mod.outlined_unit, QuaternionBox(Unit.local_rotation(mod.outlined_unit, 0)), Unit.local_position(mod.outlined_unit, 0))
+        if Unit.id32(mod.outlined_unit) then 
+            local didRemoveOG = levelIO:addRemovalList(mod.outlined_unit)
+       end
     end
 
     if mod.dragging then

@@ -70,6 +70,7 @@ local function destroy_unit(unit)
     mod:echo("Destroying a '%s'", mod.unit_hash(unit))
     local world = Managers.world:world("level_world")
 	local wasUnitRemoved = levelIO:remove(unit)
+	local isOGunit = levelIO:addRemovalList(unit, wasUnitRemoved)
 	world:destroy_unit(unit)
 end
 

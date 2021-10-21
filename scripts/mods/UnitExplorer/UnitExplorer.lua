@@ -70,7 +70,9 @@ mod:hook(CharacterStateHelper, "get_look_input", function(func, input_extension,
 end)
 
 mod:command("spawn_lvls", "Spawn in saved units", function() 
-	levelIO:load()
+	levelIO:RemovalList()
+	mod:echo('loading')
+	levelIO:load()	
 	mod:echo('loaded')
 end)
 

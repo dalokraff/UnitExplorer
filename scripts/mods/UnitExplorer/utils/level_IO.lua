@@ -55,6 +55,35 @@ function levelIO:remove(unit)
 	return query
 end
 
+function levelIO:addRemovalList(unit)
+	local didremove = false
+	if Unit.id32(unit) and Unit.alive(unit) then
+		
+		local fileName = tostring(Managers.state.game_mode:level_key()).."_removal.txt"
+		local level_file = io.open(fileName,"a+")
+		local file_string = level_file:read("*all")
+		if file_string and Unit.id32(unit) then
+			local i, j = string.find(file_string, tostring(Unit.id32(unit)))
+			if i == nil then
+				level_file:write(Unit.id32(unit))
+				level_file:write("\n")
+				level_file:close()
+				didremove = true
+				return didremove
+			end
+		else 
+			level_file:write(Unit.id32(unit))
+			level_file:write("\n")
+			level_file:close()
+			didremove = true
+			return didremove
+		end		
+	end
+	
+	return didremove
+end
+
+
 function levelIO:load()
 	local file_name = tostring(Managers.state.game_mode:level_key())..".txt"
 	local ctr = 0
@@ -62,7 +91,7 @@ function levelIO:load()
 	  ctr = ctr + 1
 	end
 	--9 is the number of lines used to store all the unit data
-	local unit_cnt = ctr/9
+	local unit_cnt = math.floor(ctr/9)
 	
 	local world = Managers.world:world("level_world")
 	local unit_table = {}
@@ -87,16 +116,49 @@ function levelIO:load()
 		
 		World.spawn_unit(world, unit_table.unit_hash, pos, Quaternion.normalize(quat))
 		--this read is to read in the "\n "character that caps the end of each unit entry
-		level_file:read()
+		if i < unit_cnt then 
+			level_file:read()
+		end
+		didSpawn = true
 	end
-	level_file:close()	
+	level_file:close()
 end
+
+
+function levelIO:RemovalList()
+	local didRemove = false
+	local file_name = tostring(Managers.state.game_mode:level_key()).."_removal.txt"
+	local ctr = 0
+	for _ in io.lines(file_name) do
+	  ctr = ctr + 1
+	end
+	local world = Managers.world:world("level_world")
+	local unit_list = World.units(world)
+	local level_file = io.open(file_name, "r")
+	--level_file:read()
+	local Unid = ""
+	
+	for i=0,ctr,1 do
+		Unid = level_file:read()
+		for _,v in pairs(unit_list) do 
+			if (tostring(Unit.id32(v)) == Unid)then
+				World.destroy_unit(world, v)
+			end
+		end
+		world = Managers.world:world("level_world")
+		unit_list = World.units(world)
+		didRemove = true
+	end
+	return didRemove
+end
+
 
 function levelIO:clear()
 	local file_name = tostring(Managers.state.game_mode:level_key())..".txt"
 	local level_file = io.open(file_name, "w")
 	level_file:write("")
 	level_file:close()
+	return
 end
 
 return

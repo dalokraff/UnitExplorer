@@ -15,7 +15,7 @@ function mod.extract_unit_data(unit)
     if Unit.alive(unit) then
         data.unit = unit
         data.name = (Unit.get_data(unit, "unit_name") or "")
-        data.id = tostring(Unit.id(unit))
+        data.id = tostring(Unit.id32(unit))
         data.hash = mod.unit_hash(unit)
         if Unit.num_scene_graph_items(unit) > 0 then
             data.position = Vector3Box(Unit.world_position(unit, 0))
@@ -53,7 +53,10 @@ function mod.drag_unit(unit_explorer)
     mod.dragged_unit_distance
 	
 	--removes unit if in file
-	local wasUnitRemoved = levelIO:remove(unit)
+	local didRemove = levelIO:remove(unit)
+	if Unit.id32(unit) then
+        local didRemoveOG = levelIO:addRemovalList(unit)
+    end
 
     local rotation = mod.dragged_rotation:unbox()
 

@@ -44,9 +44,9 @@ function LevelExplorerUi.draw(self)
     Imgui.spacing()
     for _, unit in pairs(self._units) do
 
-        Imgui.tree_push(unit.id)
+        Imgui.tree_push(Unit.id32)
 
-        if Imgui.tree_node(unit.id, #unit.extensions > 0) then
+        if Imgui.tree_node(Unit.id32, #unit.extensions > 0) then
             if unit.name ~= "" then
                 Imgui.text("Name: " .. unit.name)
             end
