@@ -14,7 +14,8 @@ local function spawn_package_to_player (unit)
         local position = Unit.local_position(player_unit, 0)
         local rotation = Unit.local_rotation(player_unit, 0)
 		local stor_rot = QuaternionBox(rotation)
-		local didSave = levelIO:save(unit, stor_rot, position)		
+        local scale = Unit.local_scale(unit, 0)
+		local didSave = levelIO:save(unit, stor_rot, position, scale)		
         return World.spawn_unit(world, Unit.name_hash(unit), position, rotation)
     end
 
@@ -56,11 +57,13 @@ local function spawn_package_at_look (unit)
         local rotation = Unit.local_rotation(player_unit, 0)
 		
 		local stor_rot = QuaternionBox(rotation)
-		local didSave = levelIO:save(unit, stor_rot, closest_hit_location)
+        local scale = Unit.local_scale(unit, 0)
+		local didSave = levelIO:save(unit, stor_rot, closest_hit_location, scale)
 		--Navmesh generation currently crashes
 		--local didGenNav = navMeshGen:gen(world, unit)		
-	
-        return World.spawn_unit(world, Unit.name_hash(unit), closest_hit_location, rotation)
+        local New_unit = World.spawn_unit(world, Unit.name_hash(unit), closest_hit_location, rotation)
+        Unit.set_local_scale(New_unit, 0, scale)
+        return New_unit
     end
 
     return nil

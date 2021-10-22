@@ -33,6 +33,8 @@ function mod.update()
 
     if mod.dragging then mod.drag_unit() end
 
+    --if mod.scaling then mod.scale_unit() end
+
     if mod.unit_explorer and mod.unit_explorer._is_open then
         mod.unit_explorer:draw()
     end

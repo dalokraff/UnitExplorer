@@ -3,7 +3,7 @@ require 'scripts/mods/UnitExplorer/utils/strManip'
 levelIO = {}
 levelIO.__index = levelIO
 
-function levelIO:save(unit, rotBox, pos)
+function levelIO:save(unit, rotBox, pos, scale)
 	local fileName = tostring(Managers.state.game_mode:level_key())..".txt"
 	local level_file = io.open(fileName,"a")
 	local unit_name_str = strManip:replacer(tostring(Unit.name_hash(unit)), true)
@@ -17,6 +17,9 @@ function levelIO:save(unit, rotBox, pos)
 	level_file:write(tostring(pos.y).."\n")
 	level_file:write(tostring(pos.z).."\n")
 	level_file:write(rot_str)
+	level_file:write(tostring(scale.x).."\n")
+	level_file:write(tostring(scale.y).."\n")
+	level_file:write(tostring(scale.z).."\n")
 	level_file:write("\n")
 	level_file:close()
 	return true
@@ -37,8 +40,12 @@ function levelIO:remove(unit)
 	local x2,y2,z2,w2 = Quaternion.to_elements(norm_quat)
 	local rot_tab ={tostring(x2),tostring(y2),tostring(z2),tostring(w2)}
 	local rot_str = strManip:ceil(rot_tab)
+
+	local scale = Unit.local_scale(unit, 0)
+	local xS,yS,zS = Vector3.to_elements(scale)
+	local scale_str = tostring(xS).."\n"..tostring(yS).."\n"..tostring(zS).."\n"
 	
-	local search_string = unit_name_str.."\n"..pos_str..rot_str.."\n"
+	local search_string = unit_name_str.."\n"..pos_str..rot_str..scale_str.."\n"
 	local num_removed = 0
 	search_string = string.gsub(search_string, "%-", "%%%-")
 	temp_file,num_removed = string.gsub(temp_file, search_string, "")
@@ -90,12 +97,13 @@ function levelIO:load()
 	for _ in io.lines(file_name) do
 	  ctr = ctr + 1
 	end
-	--9 is the number of lines used to store all the unit data
-	local unit_cnt = math.floor(ctr/9)
+	--12 is the number of lines used to store all the unit data
+	local unit_cnt = math.floor(ctr/12)
 	
 	local world = Managers.world:world("level_world")
 	local unit_table = {}
 	local pos = Vector3.zero()
+	local scale = Vector3.zero()
 	
 	local level_file = io.open(file_name, "r")
 	
@@ -114,7 +122,13 @@ function levelIO:load()
 		unit_table.rot_w = level_file:read()
 		local quat = Quaternion.from_elements(unit_table.rot_x, unit_table.rot_y, unit_table.rot_z, unit_table.rot_w)
 		
-		World.spawn_unit(world, unit_table.unit_hash, pos, Quaternion.normalize(quat))
+		unit_table.scale_x = level_file:read()
+		unit_table.scale_y = level_file:read()
+		unit_table.scale_z = level_file:read()
+		Vector3.set_xyz(scale, unit_table.scale_x, unit_table.scale_y, unit_table.scale_z)
+
+		local unit = World.spawn_unit(world, unit_table.unit_hash, pos, Quaternion.normalize(quat))
+		Unit.set_local_scale(unit, 0, scale)
 		--this read is to read in the "\n "character that caps the end of each unit entry
 		if i < unit_cnt then 
 			level_file:read()
