@@ -127,8 +127,16 @@ function levelIO:load()
 		unit_table.scale_z = level_file:read()
 		Vector3.set_xyz(scale, unit_table.scale_x, unit_table.scale_y, unit_table.scale_z)
 
-		local unit = World.spawn_unit(world, unit_table.unit_hash, pos, Quaternion.normalize(quat))
-		Unit.set_local_scale(unit, 0, scale)
+		local pose_mat = Matrix4x4.zero()
+		Matrix4x4.set_rotation(pose_mat, quat)
+        Matrix4x4.set_scale(pose_mat, scale)
+		Matrix4x4.set_translation(pose_mat, pos)
+		local unit = World.spawn_unit(world, unit_table.unit_hash, pose_mat)
+		--mod:echo(Matrix4x4.x(pose_mat))
+		--mod:echo(Matrix4x4.y(pose_mat))
+		--mod:echo(Matrix4x4.z(pose_mat))
+		--Unit.set_local_scale(unit, 0, scale)
+
 		--this read is to read in the "\n "character that caps the end of each unit entry
 		if i < unit_cnt then 
 			level_file:read()

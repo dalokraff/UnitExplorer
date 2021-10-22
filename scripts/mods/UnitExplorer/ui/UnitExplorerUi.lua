@@ -15,8 +15,14 @@ local function spawn_package_to_player (unit)
         local rotation = Unit.local_rotation(player_unit, 0)
 		local stor_rot = QuaternionBox(rotation)
         local scale = Unit.local_scale(unit, 0)
-		local didSave = levelIO:save(unit, stor_rot, position, scale)		
-        return World.spawn_unit(world, Unit.name_hash(unit), position, rotation)
+		local didSave = levelIO:save(unit, stor_rot, position, scale)
+        
+        local pose_mat = Matrix4x4.zero()
+        Matrix4x4.set_rotation(pose_mat, rotation)
+        Matrix4x4.set_scale(pose_mat, scale)
+        Matrix4x4.set_translation(pose_mat, position)
+        
+        return World.spawn_unit(world, Unit.name_hash(unit), pose_mat)
     end
 
     return nil
@@ -59,11 +65,17 @@ local function spawn_package_at_look (unit)
 		local stor_rot = QuaternionBox(rotation)
         local scale = Unit.local_scale(unit, 0)
 		local didSave = levelIO:save(unit, stor_rot, closest_hit_location, scale)
+        local pose_mat = Matrix4x4.zero()
+        --local pose_mat = Unit.local_pose(unit, 0)
+        Matrix4x4.set_rotation(pose_mat, stor_rot:unbox())
+        Matrix4x4.set_scale(pose_mat, scale)
+        Matrix4x4.set_translation(pose_mat, closest_hit_location)
+        
 		--Navmesh generation currently crashes
 		--local didGenNav = navMeshGen:gen(world, unit)		
-        local New_unit = World.spawn_unit(world, Unit.name_hash(unit), closest_hit_location, rotation)
-        Unit.set_local_scale(New_unit, 0, scale)
-        return New_unit
+        --local New_unit = World.spawn_unit(world, Unit.name_hash(unit), pose_mat)
+        --Unit.set_local_scale(New_unit, 0, scale)
+        return World.spawn_unit(world, Unit.name_hash(unit), pose_mat)
     end
 
     return nil

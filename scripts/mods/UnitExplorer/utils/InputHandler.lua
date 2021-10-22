@@ -102,21 +102,25 @@ function mod.handle_inputs()
     if Keyboard.released(Keyboard.button_index("r")) then mod.rotating = false end
 
     if  Keyboard.pressed(Keyboard.button_index("c")) then
-        local didRemove = levelIO:remove(mod.outlined_unit)
-        local scale = Unit.local_scale(mod.outlined_unit, 0) * 1.05--mod.scale_factor
-        Unit.set_local_scale(mod.outlined_unit, 0, scale)
-        local didSave = levelIO:save(mod.outlined_unit, QuaternionBox(Unit.local_rotation(mod.outlined_unit, 0)), Unit.local_position(mod.outlined_unit, 0), Unit.local_scale(mod.outlined_unit, 0))
-        if Unit.id32(mod.outlined_unit) then 
-            local didRemoveOG = levelIO:addRemovalList(mod.outlined_unit)
+        if mod.outlined_unit then 
+            local didRemove = levelIO:remove(mod.outlined_unit)
+            local scale = Unit.local_scale(mod.outlined_unit, 0) * 1.05--mod.scale_factor
+            Unit.set_local_scale(mod.outlined_unit, 0, scale)
+            local didSave = levelIO:save(mod.outlined_unit, QuaternionBox(Unit.local_rotation(mod.outlined_unit, 0)), Unit.local_position(mod.outlined_unit, 0), Unit.local_scale(mod.outlined_unit, 0))
+            if Unit.id32(mod.outlined_unit) then 
+                local didRemoveOG = levelIO:addRemovalList(mod.outlined_unit)
+            end
         end
     end
     if  Keyboard.pressed(Keyboard.button_index("v")) then
-        local didRemove = levelIO:remove(mod.outlined_unit)
-        local scale = Unit.local_scale(mod.outlined_unit, 0) * 0.95--mod.scale_factor
-        Unit.set_local_scale(mod.outlined_unit, 0, scale)
-        local didSave = levelIO:save(mod.outlined_unit, QuaternionBox(Unit.local_rotation(mod.outlined_unit, 0)), Unit.local_position(mod.outlined_unit, 0), Unit.local_scale(mod.outlined_unit, 0))
-        if Unit.id32(mod.outlined_unit) then 
-            local didRemoveOG = levelIO:addRemovalList(mod.outlined_unit)
+        if mod.outlined_unit then 
+            local didRemove = levelIO:remove(mod.outlined_unit)
+            local scale = Unit.local_scale(mod.outlined_unit, 0) * 0.95--mod.scale_factor
+            Unit.set_local_scale(mod.outlined_unit, 0, scale)
+            local didSave = levelIO:save(mod.outlined_unit, QuaternionBox(Unit.local_rotation(mod.outlined_unit, 0)), Unit.local_position(mod.outlined_unit, 0), Unit.local_scale(mod.outlined_unit, 0))
+            if Unit.id32(mod.outlined_unit) then 
+                local didRemoveOG = levelIO:addRemovalList(mod.outlined_unit)
+            end
         end
     end
 end
