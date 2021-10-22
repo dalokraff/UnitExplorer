@@ -172,6 +172,10 @@ function levelIO:clear()
 	local level_file = io.open(file_name, "w")
 	level_file:write("")
 	level_file:close()
+	local file_name_remove = tostring(Managers.state.game_mode:level_key()).."_removal.txt"
+	local level_file_remove = io.open(file_name_remove, "w")
+	level_file_remove:write("")
+	level_file_remove:close()
 	return
 end
 
