@@ -27,6 +27,9 @@ mod.dragged_unit_distance = 0
 ------------------
 mod.rotating = false
 mod.dragged_rotation = nil
+mod.roll = true
+mod.pitch = false
+mod.yaw = false
 
 function mod.update()
     mod.handle_inputs()
@@ -47,18 +50,29 @@ end
 local small_delta = math.pi / 15
 local MAX_MIN_PITCH = math.pi
 local function calculate_rotation(current_rotation, look_delta)
-    local yaw = Quaternion.yaw(current_rotation) - look_delta.x
-
-    -- if self.restrict_rotation_angle then
-    -- 	yaw = math.clamp(yaw, -self.restrict_rotation_angle, self.restrict_rotation_angle)
-    -- end
-
-    local pitch = math.clamp(Quaternion.pitch(current_rotation) + look_delta.y, -MAX_MIN_PITCH, MAX_MIN_PITCH)
-    local yaw_rotation = Quaternion(Vector3.up(), yaw)
-    local pitch_rotation = Quaternion(Vector3.right(), pitch)
-    local look_rotation = Quaternion.multiply(yaw_rotation, pitch_rotation)
-
-    return look_rotation
+    
+    if mod.roll then 
+        local y_axis = Vector3.zero()
+        Vector3.set_y(y_axis, 1)
+        local roll_rotation = Quaternion.axis_angle(y_axis, look_delta.x)
+        local rolled_matrix = Quaternion.multiply(current_rotation, roll_rotation)
+        return Quaternion.normalize(rolled_matrix)
+    end
+    if mod.pitch then
+        local y_axis = Vector3.zero()
+        Vector3.set_x(y_axis, 1)
+        local roll_rotation = Quaternion.axis_angle(y_axis, look_delta.x)
+        local rolled_matrix = Quaternion.multiply(current_rotation, roll_rotation)
+        return Quaternion.normalize(rolled_matrix)
+    end
+    if mod.yaw then 
+        local y_axis = Vector3.zero()
+        Vector3.set_z(y_axis, 1)
+        local roll_rotation = Quaternion.axis_angle(y_axis, look_delta.x)
+        local rolled_matrix = Quaternion.multiply(current_rotation, roll_rotation)
+        return Quaternion.normalize(rolled_matrix)
+    end
+    return current_rotation
 end
 
 mod:hook(CharacterStateHelper, "get_look_input", function(func, input_extension, status_extension, inventory_extension, is_3p)

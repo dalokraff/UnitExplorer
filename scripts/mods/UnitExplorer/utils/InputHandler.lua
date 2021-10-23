@@ -101,6 +101,22 @@ function mod.handle_inputs()
     if Keyboard.pressed(Keyboard.button_index("r")) then mod.rotating = true end
     if Keyboard.released(Keyboard.button_index("r")) then mod.rotating = false end
 
+    if Keyboard.pressed(Keyboard.button_index("oem_comma (< ,)")) then
+        mod.roll = not mod.roll
+        mod.yaw = false
+        mod.pitch = false
+    end
+    if Keyboard.pressed(Keyboard.button_index("oem_period (> .)")) then
+        mod.roll = false
+        mod.yaw = not mod.yaw
+        mod.pitch = false
+    end
+    if Keyboard.pressed(Keyboard.button_index("oem_2 (? /)")) then
+        mod.roll = false
+        mod.yaw = false
+        mod.pitch = not mod.pitch
+    end
+
     if  Keyboard.pressed(Keyboard.button_index("c")) then
         if mod.outlined_unit then 
             local didRemove = levelIO:remove(mod.outlined_unit)
