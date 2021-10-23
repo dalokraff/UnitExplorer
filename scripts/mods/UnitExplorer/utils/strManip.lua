@@ -19,7 +19,12 @@ function strManip:replacer(someString, revBool)
 		quest ="%?",
 		openBracket ="%[",
 		carrot ="%^",
-		money ="%$"
+		money ="%$",
+		carriage = "\r",
+		vertical = "\v",
+		horizontal = "\t",
+		fuckedThing = "", --this is the "substitute" chracter whatever the fuck that is
+		--formFeed = "\f"
 	}
 	
 	if revBool then 

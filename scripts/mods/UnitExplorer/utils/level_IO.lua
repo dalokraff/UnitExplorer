@@ -115,13 +115,13 @@ function levelIO:load()
 		unit_table.pos_y = level_file:read()
 		unit_table.pos_z = level_file:read()
 		Vector3.set_xyz(pos, unit_table.pos_x, unit_table.pos_y, unit_table.pos_z)
-		
+
 		unit_table.rot_x = level_file:read()
 		unit_table.rot_y = level_file:read()
 		unit_table.rot_z = level_file:read()
 		unit_table.rot_w = level_file:read()
 		local quat = Quaternion.from_elements(unit_table.rot_x, unit_table.rot_y, unit_table.rot_z, unit_table.rot_w)
-		
+
 		unit_table.scale_x = level_file:read()
 		unit_table.scale_y = level_file:read()
 		unit_table.scale_z = level_file:read()
